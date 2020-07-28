@@ -135,10 +135,10 @@ static ssize_t tfa_cal_rdc_show(struct device *dev,
 		}
 
 		if (idx == 0)
-			snprintf(cal_done_string,
+			scnprintf(cal_done_string,
 				FILESIZE_RDC_CAL, "%d", value);
 		else
-			snprintf(cal_done_string,
+			scnprintf(cal_done_string,
 				FILESIZE_RDC_CAL, "%s %d",
 				cal_done_string, value);
 	}
@@ -158,10 +158,10 @@ static ssize_t tfa_cal_rdc_show(struct device *dev,
 
 tfa_cal_rdc_show_exit:
 	if (ret || cal_done_string[0] == 0)
-		size = snprintf(buf,
+		size = scnprintf(buf,
 			7 + 1, "no_data");
 	else
-		size = snprintf(buf,
+		size = scnprintf(buf,
 			strlen(cal_done_string) + 1,
 			"%s", cal_done_string);
 
@@ -240,10 +240,10 @@ static ssize_t tfa_cal_temp_show(struct device *dev,
 		}
 
 		if (idx == 0)
-			snprintf(cal_done_string,
+			scnprintf(cal_done_string,
 				FILESIZE_TEMP_CAL, "%d", value);
 		else
-			snprintf(cal_done_string,
+			scnprintf(cal_done_string,
 				FILESIZE_TEMP_CAL, "%s %d",
 				cal_done_string, value);
 	}
@@ -276,10 +276,10 @@ static ssize_t tfa_cal_temp_show(struct device *dev,
 
 tfa_cal_temp_show_exit:
 	if (ret2)
-		size = snprintf(buf,
+		size = scnprintf(buf,
 			7 + 1, "no_data");
 	else
-		size = snprintf(buf,
+		size = scnprintf(buf,
 			strlen(cal_done_string) + 1,
 			"%s", cal_done_string);
 
@@ -305,7 +305,7 @@ static ssize_t tfa_cal_status_show(struct device *dev,
 {
 	int size;
 
-	size = snprintf(buf, 25, "%s\n", cur_status ?
+	size = scnprintf(buf, 25, "%s\n", cur_status ?
 		"calibration is active" : "calibration is inactive");
 
 	return size;
@@ -353,10 +353,10 @@ static ssize_t tfa_cal_status_store(struct device *dev,
 		cur_status = 0; /* done - changed to inactive */
 
 		if (idx == 0)
-			snprintf(cal_done_string,
+			scnprintf(cal_done_string,
 				FILESIZE_RDC_CAL, "%d", value);
 		else
-			snprintf(cal_done_string,
+			scnprintf(cal_done_string,
 				FILESIZE_RDC_CAL, "%s %d",
 				cal_done_string, value);
 
@@ -374,10 +374,10 @@ static ssize_t tfa_cal_status_store(struct device *dev,
 		}
 
 		if (idx == 0)
-			snprintf(cal_done_string2,
+			scnprintf(cal_done_string2,
 				FILESIZE_TEMP_CAL, "%d", value2);
 		else
-			snprintf(cal_done_string2,
+			scnprintf(cal_done_string2,
 				FILESIZE_TEMP_CAL, "%s %d",
 				cal_done_string2, value2);
 	}
