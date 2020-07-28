@@ -1276,8 +1276,8 @@ static void conn_gadget_cleanup(void)
     if (_conn_gadget_dev->rd_queue_buf)
         vfree(_conn_gadget_dev->rd_queue_buf);
 
-	kfree(_conn_gadget_dev);
-	_conn_gadget_dev = NULL;
+	    kfree(_conn_gadget_dev);
+	    _conn_gadget_dev = NULL;
 }
 
 static int conn_gadget_setup_configfs(struct conn_gadget_instance *fi_conn_gadget)
