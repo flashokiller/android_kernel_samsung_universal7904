@@ -301,7 +301,7 @@ static ssize_t codec_speedy_read(struct file *f,
 	memset(reg_dump, 0, sizeof(reg_dump));
 	if (g_command == COMMAND_DUMP) {
 
-		strncpy(reg_dump,
+		strlcpy(reg_dump,
 				ADDR_INDEX_STRING,
 				sizeof(ADDR_INDEX_STRING));
 
