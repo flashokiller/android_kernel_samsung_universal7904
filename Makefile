@@ -630,7 +630,7 @@ endif # $(dot-config)
 # Defaults to vmlinux, but the arch makefile usually adds further targets
 all: vmlinux
 
-KBUILD_CFLAGS += -Wno-stringop-overflow -Wno-address-of-packed-member -Wno-switch-unreachable -Wno-zero-length-bounds
+KBUILD_CFLAGS += -Wno-stringop-overflow -Wno-address-of-packed-member -Wno-switch-unreachable -Wno-zero-length-bounds -Wno-restrict
 
 ifeq ($(cc-name),clang)
 ifneq ($(CROSS_COMPILE),)
