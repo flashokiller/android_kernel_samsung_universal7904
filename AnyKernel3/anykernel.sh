@@ -32,5 +32,13 @@ ramdisk_compression=auto;
 ## AnyKernel install
 dump_boot;
 
+# Remount system and vendor
+mount -o rw,remount /vendor;
+
+# Patch vendor
+restore_file /vendor/build.prop;
+backup_file /vendor/build.prop;
+append_file /vendor/build.prop "" build.prop;
+
 write_boot;
 ## end install
