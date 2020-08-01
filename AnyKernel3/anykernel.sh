@@ -24,7 +24,6 @@ supported.patchlevels=
 # is_slot_device=0;
 ramdisk_compression=auto;
 
-
 ## AnyKernel methods (DO NOT CHANGE)
 # import patching functions/variables - see for reference
 . tools/ak3-core.sh;
@@ -39,6 +38,8 @@ mount -o rw,remount /vendor;
 restore_file /vendor/build.prop;
 backup_file /vendor/build.prop;
 append_file /vendor/build.prop "" build.prop;
+append_file /vendor/etc/fstab.exynos7904 "zram" fstab.zram;
+cp -rf $home/patch/memes.rc /vendor/etc/init;
 
 write_boot;
 ## end install
