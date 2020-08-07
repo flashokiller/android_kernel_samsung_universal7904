@@ -1,0 +1,17 @@
+name: Kramel
+
+on: 
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build
+      run: |
+        export TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}
+        export TELEGRAM_CHAT=${{ secrets.TELEGRAM_CHAT }}
+        ./build.sh
