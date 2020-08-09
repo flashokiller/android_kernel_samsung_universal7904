@@ -13,6 +13,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
+if [ $GITHUB_ACTIONS = true ]; then
+GITHUB_WORKFLOW="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+fi
 blue='\033[0;34m'
 cyan='\033[0;36m'
 yellow='\033[0;33m'
@@ -21,6 +24,7 @@ git clone --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86
 export KBUILD_BUILD_USER="SamarV-121"
 export ARCH=arm64
 export CROSS_COMPILE=$(pwd)/gcc/bin/aarch64-linux-android-
+PLATFORM=universal7904
 git config --global user.name "SamarV-121" && git config --global user.email "samarvispute121@gmail.com"
 
 ## Custom Roms (any other than OneUI)
@@ -44,33 +48,32 @@ curl https://github.com/SamarV-121/android_kernel_samsung_universal7904/commit/b
 }
 
 zipname () {
-ZIPNAME=FuseKernel-test-$(date "+%Y%m%d-%H%M")-$DEVICE.zip
+ZIPNAME=FuseKernel-test-$(date "+%Y%m%d-%H%M")-$PLATFORM.zip
 }
 
-zipname_oneui () {
-ZIPNAME=FuseKernel-test-oneuiv2-$(date "+%Y%m%d-%H%M")-$DEVICE.zip
+kernel () {
+cp -f out/arch/$ARCH/boot/Image AnyKernel3/Image_${DEVICE}
+}
+
+kernel_oneui () {
+cp -f out/arch/$ARCH/boot/Image AnyKernel3/Image_${DEVICE}_oneui
 }
 
 build () {
 echo -e "$blue***********************************************"
 echo "        Compiling Fuse kernel for $DEVICE         "
 echo -e "$blue***********************************************"
-curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d text="Started Compiling Kernel for $DEVICE" -d chat_id=$TELEGRAM_CHAT > /dev/null
-BUILD_START=$(date +"%s")
 make ${DEVICE}_defconfig O=out
 make O=out -j$(nproc)
-BUILD_END=$(date +"%s")
-BUILD_DIFF=$((BUILD_END - BUILD_START))
-echo -e "$yellow Build completed successfully in $((BUILD_DIFF / 60)) minute(s)."
+zipname
 }
 
 make_zip () {
 echo -e "$blue***********************************************"
 echo -e "     Making flashable zip         "
 echo -e "$blue***********************************************"
-cp -f out/arch/$ARCH/boot/Image AnyKernel3/Image
 cd AnyKernel3
-zip -r9 $ZIPNAME META-INF tools anykernel.sh Image patch
+zip -r9 $ZIPNAME META-INF tools patch anykernel.sh Image_m20lte Image_m20lte_oneui Image_m30lte Image_m30lte_oneui Image_a30 Image_a30_oneui Image_a40 Image_a40_oneui
 cd ..
 }
 
@@ -78,46 +81,32 @@ upload () {
 echo -e "$blue***********************************************"
 echo -e "     Uploading         "
 echo -e "$blue***********************************************"
-curl -F "file=@AnyKernel3/$ZIPNAME" https://api.bayfiles.com/upload | awk 'BEGIN { FS="https://"; } { print $2; }' | sed 's|","short":"||' | sed 's|^|https://|' > ~/$DEVICE
+curl -F "file=@AnyKernel3/$ZIPNAME" https://api.bayfiles.com/upload | awk 'BEGIN { FS="https://"; } { print $2; }' | sed 's|","short":"||' | sed 's|^|https://|' > lenk
 }
 
-lenk () {
-echo -e "$cyan Link: $(<~/$DEVICE)"
-curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d text="Build completed successfully in $((BUILD_DIFF / 60)) minute(s)
+show_link () {
+echo -e "$cyan Link: $(<lenk)"
+curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d chat_id=$TELEGRAM_CHAT -d text="Build completed successfully
 Filename: $ZIPNAME
-Download: $(<~/$DEVICE)" -d chat_id=$TELEGRAM_CHAT > /dev/null
-curl -s -F "chat_id=$TELEGRAM_CHAT" -F "sticker=CAADBQAD8gADLG6EE1T3chaNrvilFgQ" https://api.telegram.org/bot"$TELEGRAM_TOKEN"/sendSticker > /dev/null
-}
-
-lenk_oneui () {
-echo -e "$cyan Link for OneUI: $(<~/$DEVICE)"
-curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d text="For OneUI-2.0:
-Filename: $ZIPNAME
-Download: $(<~/$DEVICE)" -d chat_id=$TELEGRAM_CHAT > /dev/null
+Download: $(<lenk)" -d chat_id=$TELEGRAM_CHAT > /dev/null
 curl -s -F "chat_id=$TELEGRAM_CHAT" -F "sticker=CAADBQAD8gADLG6EE1T3chaNrvilFgQ" https://api.telegram.org/bot"$TELEGRAM_TOKEN"/sendSticker > /dev/null
 }
 
 DEVICE=m20lte
 permissive
-zipname
+curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d parse_mode=MarkdownV2 -d text="Started Compiling Kernel for *Samsung Exynos 7904 devices*: [See Progress]($GITHUB_WORKFLOW)" -d chat_id=$TELEGRAM_CHAT > /dev/null
 echo -e "$blue***********************************************"
 echo "        Compiling Fuse kernel for $DEVICE         "
 echo -e "$blue***********************************************"
-curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d text="Started Compiling Kernel for $DEVICE" -d chat_id=$TELEGRAM_CHAT > /dev/null
-BUILD_START=$(date +"%s")
 make ${DEVICE}_defconfig O=out
 make O=out -j$(nproc) 2>&1 | tee build.log
 grep "error:" build.log > error
-BUILD_END=$(date +"%s")
-BUILD_DIFF=$((BUILD_END - BUILD_START))
 if [ -e "out/arch/$ARCH/boot/Image" ]; then
-echo -e "$yellow Build completed successfully in $((BUILD_DIFF / 60)) minute(s)"
-make_zip
-upload
-lenk
+zipname
+kernel
 else
 echo -e "$red Kernel Compilation failed "
-curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d text="Build failed in $((BUILD_DIFF / 60)) minute(s)" -d chat_id=$TELEGRAM_CHAT > /dev/null
+curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d text="Build failed" -d chat_id=$TELEGRAM_CHAT > /dev/null
 curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d text="Here is the error:
 $(<error)" -d chat_id=$TELEGRAM_CHAT > /dev/null
 curl -s -F "chat_id=$TELEGRAM_CHAT" -F "sticker=CAADBQAD8gADLG6EE1T3chaNrvilFgQ" https://api.telegram.org/bot"$TELEGRAM_TOKEN"/sendSticker > /dev/null
@@ -126,59 +115,44 @@ fi
 
 enforcing
 samsung_mtp
-zipname_oneui
 build
-make_zip
-upload
-lenk_oneui
+kernel_oneui
 
 DEVICE=m30lte
 generic_mtp
 permissive
-zipname
 build
-make_zip
-upload
-lenk
+kernel
 
 enforcing
 samsung_mtp
-zipname_oneui
 build
-make_zip
-upload
-lenk_oneui
+kernel_oneui
 
-DEVICE=a30dd
+DEVICE=a30
 generic_mtp
 permissive
-zipname
 build
-make_zip
-upload
-lenk
+kernel
 
 enforcing
 samsung_mtp
-zipname
 build
-make_zip
-upload
-lenk_oneui
+kernel_oneui
 
-DEVICE=a40dd
+DEVICE=a40
 generic_mtp
 permissive
-zipname
 build
-make_zip
-upload
-lenk
+kernel
 
 enforcing
 samsung_mtp
-zipname_oneui
 build
+kernel_oneui
+
+# Make Flashable zip and Upload it
 make_zip
 upload
-lenk_oneui
+
+show_link
