@@ -1,7 +1,9 @@
-name: Kramel
+name: Build STAGING Kernel
 
 on: 
   push:
+    branches:
+      - fuse
 
 jobs:
   build:
@@ -10,8 +12,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Build
+    - name: Get build date
+      id: get_date
+      run: |
+        echo ::set-output name=date::$(date '+%Y%m%d-%H')
+
+    - name: Run kernel build script
       run: |
         export TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}
-        export TELEGRAM_CHAT=${{ secrets.TELEGRAM_CHAT }}
+        export ZIPNAME=FuseKernel-test-${{ steps.get_date.outputs.date }}-universal7904.zip
         ./build.sh

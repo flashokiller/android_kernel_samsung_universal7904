@@ -13,18 +13,24 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
+PLATFORM=universal7904
+export TELEGRAM_CHAT=@SamarCI
+
 if [ $GITHUB_ACTIONS = true ]; then
 GITHUB_WORKFLOW="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+else
+ZIPNAME=FuseKernel-test-$(date '+%Y%m%d-%H')-$PLATFORM.zip
 fi
+
 blue='\033[0;34m'
 cyan='\033[0;36m'
 yellow='\033[0;33m'
 red='\033[0;31m'
+
 git clone --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9 gcc
 export KBUILD_BUILD_USER="SamarV-121"
 export ARCH=arm64
 export CROSS_COMPILE=$(pwd)/gcc/bin/aarch64-linux-android-
-PLATFORM=universal7904
 git config --global user.name "SamarV-121" && git config --global user.email "samarvispute121@gmail.com"
 
 ## Custom Roms (any other than OneUI)
@@ -47,10 +53,6 @@ enforcing() {
 curl https://github.com/SamarV-121/android_kernel_samsung_universal7904/commit/b6d4e2b03b52f81da94420b8ca15a6f3db22aaee.patch | git am
 }
 
-zipname () {
-ZIPNAME=FuseKernel-test-$(date "+%Y%m%d-%H%M")-$PLATFORM.zip
-}
-
 kernel () {
 cp -f out/arch/$ARCH/boot/Image AnyKernel3/Image_${DEVICE}
 }
@@ -65,7 +67,6 @@ echo "        Compiling Fuse kernel for $DEVICE         "
 echo -e "$blue***********************************************"
 make ${DEVICE}_defconfig O=out
 make O=out -j$(nproc)
-zipname
 }
 
 make_zip () {
@@ -89,7 +90,7 @@ echo -e "$cyan Link: $(<lenk)"
 curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d chat_id=$TELEGRAM_CHAT -d text="Build completed successfully
 Filename: $ZIPNAME
 Download: $(<lenk)" -d chat_id=$TELEGRAM_CHAT > /dev/null
-curl -s -F "chat_id=$TELEGRAM_CHAT" -F "sticker=CAADBQAD8gADLG6EE1T3chaNrvilFgQ" https://api.telegram.org/bot"$TELEGRAM_TOKEN"/sendSticker > /dev/null
+curl --data parse_mode=HTML --data chat_id=$TELEGRAM_CHAT --data sticker=CAADBQAD8gADLG6EE1T3chaNrvilFgQ --request POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendSticker > /dev/null
 }
 
 DEVICE=m20lte
@@ -102,14 +103,13 @@ make ${DEVICE}_defconfig O=out
 make O=out -j$(nproc) 2>&1 | tee build.log
 grep "error:" build.log > error
 if [ -e "out/arch/$ARCH/boot/Image" ]; then
-zipname
 kernel
 else
 echo -e "$red Kernel Compilation failed "
 curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d text="Build failed" -d chat_id=$TELEGRAM_CHAT > /dev/null
 curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d text="Here is the error:
 $(<error)" -d chat_id=$TELEGRAM_CHAT > /dev/null
-curl -s -F "chat_id=$TELEGRAM_CHAT" -F "sticker=CAADBQAD8gADLG6EE1T3chaNrvilFgQ" https://api.telegram.org/bot"$TELEGRAM_TOKEN"/sendSticker > /dev/null
+curl --data parse_mode=HTML --data chat_id=$TELEGRAM_CHAT --data sticker=CAADBQAD8gADLG6EE1T3chaNrvilFgQ --request POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendSticker > /dev/null
 exit 1
 fi
 
