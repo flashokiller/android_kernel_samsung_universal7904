@@ -1,0 +1,2 @@
+on boot
+    exec - root -- /vendor/bin/services.sh
