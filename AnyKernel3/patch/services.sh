@@ -13,3 +13,11 @@ then
     echo 0 > /proc/sys/vm/page-cluster
     echo $(nproc) > /sys/block/zram0/max_comp_streams
 fi
+
+# I/O
+echo 0 > /sys/block/mmcblk0/queue/iostats
+echo 0 > /sys/block/mmcblk1/queue/iostats
+echo 0 > /sys/block/mmcblk0/queue/read_ahead_kb
+echo 0 > /sys/block/mmcblk1/queue/read_ahead_kb
+echo 512 > /sys/block/mmcblk0/queue/nr_requests
+echo 512 > /sys/block/mmcblk1/queue/nr_requests
