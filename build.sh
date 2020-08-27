@@ -95,7 +95,7 @@ curl --data parse_mode=HTML --data chat_id=$TELEGRAM_CHAT --data sticker=CAADBQA
 
 DEVICE=m20lte
 permissive
-curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d parse_mode=MarkdownV2 -d text="Started Compiling Kernel for *Samsung Exynos 7904 devices*: [See Progress]($GITHUB_WORKFLOW)" -d chat_id=$TELEGRAM_CHAT > /dev/null
+curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d parse_mode=MarkdownV2 -d disable_web_page_preview=true -d text="Started Compiling Kernel for *Samsung Exynos 7904 devices*: [See Progress]($GITHUB_WORKFLOW)" -d chat_id=$TELEGRAM_CHAT > /dev/null
 echo -e "$blue***********************************************"
 echo "        Compiling Fuse kernel for $DEVICE         "
 echo -e "$blue***********************************************"
