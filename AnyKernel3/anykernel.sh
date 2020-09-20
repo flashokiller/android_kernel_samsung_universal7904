@@ -16,7 +16,7 @@ device.name2=
 device.name3=
 device.name4=
 device.name5=
-supported.versions=10
+supported.versions=10-11
 '; } # end properties
 
 # shell variables
