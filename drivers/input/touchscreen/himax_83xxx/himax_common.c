@@ -2982,7 +2982,7 @@ FW_force_upgrade:
 #endif
 
 /*touch data init*/
-	ts->glove_enabled = 0;
+	ts->glove_enabled = 1;
 	ts->touch_count = 0;
 	ts->print_info_cnt_open = 0;
 	ts->print_info_cnt_release = 0;
