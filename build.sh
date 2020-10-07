@@ -82,20 +82,19 @@ upload () {
 echo -e "$blue***********************************************"
 echo -e "     Uploading         "
 echo -e "$blue***********************************************"
-curl -F "file=@AnyKernel3/$ZIPNAME" https://api.bayfiles.com/upload | awk 'BEGIN { FS="https://"; } { print $2; }' | sed 's|","short":"||' | sed 's|^|https://|' > lenk
+curl -F "file=@AnyKernel3/$ZIPNAME" http://file.io 2> /dev/null | cut -f 10 -d '"' > lenk
 }
 
 show_link () {
 echo -e "$cyan Link: $(<lenk)"
-curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d chat_id=$TELEGRAM_CHAT -d text="Build completed successfully
-Filename: $ZIPNAME
-Download: $(<lenk)" -d chat_id=$TELEGRAM_CHAT > /dev/null
+curl -s https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d chat_id=$TELEGRAM_CHAT -d text="Build completed successfully
+Download: [$ZIPNAME]($(<lenk))" -d chat_id=$TELEGRAM_CHAT -d parse_mode=Markdown > /dev/null
 curl --data parse_mode=HTML --data chat_id=$TELEGRAM_CHAT --data sticker=CAADBQAD8gADLG6EE1T3chaNrvilFgQ --request POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendSticker > /dev/null
 }
 
 DEVICE=m20lte
 permissive
-curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d parse_mode=MarkdownV2 -d disable_web_page_preview=true -d text="Started Compiling Kernel for *Samsung Exynos 7904 devices*: [See Progress]($GITHUB_WORKFLOW)" -d chat_id=$TELEGRAM_CHAT > /dev/null
+curl -s https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d parse_mode=MarkdownV2 -d disable_web_page_preview=true -d text="Started Compiling Kernel for *Samsung Exynos 7904 devices*: [See Progress]($GITHUB_WORKFLOW)" -d chat_id=$TELEGRAM_CHAT > /dev/null
 echo -e "$blue***********************************************"
 echo "        Compiling Fuse kernel for $DEVICE         "
 echo -e "$blue***********************************************"
@@ -106,8 +105,8 @@ if [ -e "out/arch/$ARCH/boot/Image" ]; then
 kernel
 else
 echo -e "$red Kernel Compilation failed "
-curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d text="Build failed" -d chat_id=$TELEGRAM_CHAT > /dev/null
-curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d text="Here is the error:
+curl -s https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d text="Build failed" -d chat_id=$TELEGRAM_CHAT > /dev/null
+curl -s https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage -d text="Here is the error:
 $(<error)" -d chat_id=$TELEGRAM_CHAT > /dev/null
 curl --data parse_mode=HTML --data chat_id=$TELEGRAM_CHAT --data sticker=CAADBQAD8gADLG6EE1T3chaNrvilFgQ --request POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendSticker > /dev/null
 exit 1
